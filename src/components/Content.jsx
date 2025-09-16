@@ -1,29 +1,33 @@
 // src/components/Content.jsx
-import Efectivo from '../pages/Efectivo'; // Importa el nuevo componente
+import Efectivo from '../pages/Efectivo'; 
+import Debitos from '../pages/Debitos';   
+import Cheques from '../pages/Cheques';           
+import Transferencias from '../pages/Transferencias'; 
+import QR from '../pages/QR';                   
 
 // Componente de ejemplo para las otras secciones
 const PlaceholderContent = ({ sectionName }) => (
   <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
     <p className="text-gray-600 dark:text-gray-400">
       Aquí se mostrará el contenido y los formularios para la sección de <strong className="font-semibold text-sky-600 dark:text-sky-400">{sectionName}</strong>.
-      Próximamente desarrollaremos esta vista.
     </p>
   </div>
 );
 
-
 const Content = ({ selectedItem }) => {
   
-  // Función para renderizar el componente correcto
   const renderContent = () => {
     switch (selectedItem) {
       case 'Efectivo':
         return <Efectivo />;
-      case 'Inicio':
-        return <PlaceholderContent sectionName="Inicio" />;
-      case 'Transferencias':
-        return <PlaceholderContent sectionName="Transferencias" />;
-      // ... puedes añadir más casos para cada sección aquí
+      case 'Débitos':
+        return <Debitos />;
+      case 'Cheques':         
+        return <Cheques />;
+      case 'Transferencias':  
+        return <Transferencias />;
+      case 'QR':              
+        return <QR />;
       default:
         return <PlaceholderContent sectionName={selectedItem} />;
     }
