@@ -6,8 +6,10 @@ const Header = ({
   selectedLocation, setSelectedLocation, 
   toggleTheme, theme 
 }) => {
-  const users = ["Felipe Gonzalez", "Ana Martinez", "Carlos Smith"];
-  const locations = ["Caja 1 - Casa Central", "Sucursal Norte", "Depósito Principal"];
+  const users = ["Leon Felipe Coll"];
+  const locations = ["Caja 1 - Casa Central", "Caja 2 - Casa Central", "Caja 3 - Casa Central",
+    "Caja Sinsacate", "Caja La caroyense", "Caja ruta 9 - 1", "Caja ruta 9 - 2", "Caja Locutorio"
+  ];
   
   const currentDate = new Date().toLocaleDateString('es-AR', {
     day: 'numeric',
