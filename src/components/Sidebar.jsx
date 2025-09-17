@@ -12,14 +12,12 @@ const Sidebar = ({ selectedItem, onSelectItem }) => {
     { name: "QR", icon: <QrCode size={20} /> },
     { name: "Débitos", icon: <CreditCard size={20} /> },
     
-    { name: "Efectivo", icon: <ArrowUp size={20} /> }, // <--- Nombre cambiado aquí
+    { name: "Efectivo", icon: <ArrowUp size={20} /> }, 
   ];
-  
-  // ... el resto del componente sigue igual
   
   return (
     <aside className="w-64 bg-white dark:bg-gray-800 p-4 flex flex-col shadow-lg transition-colors duration-300">
-      <div className="text-2xl font-bold mb-8 text-center text-slate-700 dark:text-slate-300">MiFinanza</div>
+      <div className="text-2xl font-bold mb-8 text-center text-slate-700 dark:text-slate-300">Arqueo D</div>
       <nav className="flex-grow">
         <ul>
           {menuItems.map((item) => {
