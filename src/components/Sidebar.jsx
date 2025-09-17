@@ -1,15 +1,17 @@
 // src/components/Sidebar.jsx
-import { Home, ArrowRightLeft, QrCode, CreditCard, Landmark, Banknote, ArrowDown, ArrowUp } from 'lucide-react';
+import { Home, ArrowRightLeft, QrCode, CreditCard, Landmark, Banknote, ArrowDown, ArrowUp, Shapes } from 'lucide-react';
 
 const Sidebar = ({ selectedItem, onSelectItem }) => {
   const menuItems = [
     { name: "Inicio", icon: <Home size={20} /> },
+    { name: "Pagos Municipales", icon: <Landmark size={20} /> },
+    { name: "Varios", icon: <Shapes size={20} /> },
+    { name: "Egresos", icon: <ArrowDown size={20} /> },
+    { name: "Cheques", icon: <Banknote size={20} /> },
     { name: "Transferencias", icon: <ArrowRightLeft size={20} /> },
     { name: "QR", icon: <QrCode size={20} /> },
-    { name: "Cheques", icon: <Banknote size={20} /> },
     { name: "Débitos", icon: <CreditCard size={20} /> },
-    { name: "Pagos Municipales", icon: <Landmark size={20} /> },
-    { name: "Egresos", icon: <ArrowDown size={20} /> },
+    
     { name: "Efectivo", icon: <ArrowUp size={20} /> }, // <--- Nombre cambiado aquí
   ];
   

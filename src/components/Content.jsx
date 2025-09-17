@@ -3,14 +3,18 @@ import Efectivo from '../pages/Efectivo';
 import Debitos from '../pages/Debitos';   
 import Cheques from '../pages/Cheques';           
 import Transferencias from '../pages/Transferencias'; 
-import QR from '../pages/QR';                   
+import QR from '../pages/QR';      
+import Varios from '../pages/Varios';  
+import Egresos from '../pages/Egresos';  
+import PagosMunicipales from '../pages/PagosMunicipales';               
 
 // Componente de ejemplo para las otras secciones
 const PlaceholderContent = ({ sectionName }) => (
   <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
     <p className="text-gray-600 dark:text-gray-400">
-      Aquí se mostrará el contenido y los formularios para la sección de <strong className="font-semibold text-sky-600 dark:text-sky-400">{sectionName}</strong>.
-    </p>
+      Seleccione una opcion del menu izquierdo para visualizar aqui su contenido.
+      {/* Aquí se mostrará el contenido y los formularios para la sección de <strong className="font-semibold text-sky-600 dark:text-sky-400">{sectionName}</strong>. */}
+    </p> 
   </div>
 );
 
@@ -22,12 +26,18 @@ const Content = ({ selectedItem }) => {
         return <Efectivo />;
       case 'Débitos':
         return <Debitos />;
-      case 'Cheques':         
+      case 'Cheques':
         return <Cheques />;
-      case 'Transferencias':  
+      case 'Transferencias':
         return <Transferencias />;
-      case 'QR':              
+      case 'QR':
         return <QR />;
+      case 'Varios':  
+        return <Varios />;
+      case 'Pagos Municipales': 
+        return <PagosMunicipales />;
+      case 'Egresos': 
+        return <Egresos />;
       default:
         return <PlaceholderContent sectionName={selectedItem} />;
     }
