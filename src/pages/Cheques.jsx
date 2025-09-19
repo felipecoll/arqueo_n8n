@@ -1,4 +1,3 @@
-// src/components/Cheques.jsx
 import { useState, useEffect, useMemo } from 'react';
 import { Banknote, Trash2, Edit, Save, XCircle, ListPlus, CircleDollarSign } from 'lucide-react';
 
@@ -16,7 +15,7 @@ const Cheques = () => {
   const [items, setItems] = useState(getInitialData);
   const [inputValue, setInputValue] = useState('');
   
-  // Estados para la edición
+  // Estados para edición
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingValue, setEditingValue] = useState('');
 
@@ -49,7 +48,7 @@ const Cheques = () => {
     }
   };
 
-  // --- Lógica de Edición ---
+  // --- Lógica de edición ---
   const handleEditClick = (index) => {
     setEditingIndex(index);
     setEditingValue(items[index].toString());
@@ -68,7 +67,40 @@ const Cheques = () => {
     }
     const updatedItems = items.map((item, index) => index === indexToSave ? updatedValue : item);
     setItems(updatedItems);
-    handleCancelEdit(); // Resetea el estado de edición
+    handleCancelEdit();
+  };
+
+  // --- Envío a n8n ---
+  const handleSendToN8N = async () => {
+    if (items.length === 0) {
+      alert("No hay datos de cheques para enviar.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5678/webhook-test/arqueoN8N", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          modulo: "cheques",
+          cheques: items,
+          totalAmount,
+          operationCount,
+          fecha: new Date().toISOString()
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert("✅ Cheques enviados correctamente a n8n");
+        console.log("Respuesta n8n:", data);
+      } else {
+        alert("❌ Error al enviar los datos a n8n");
+      }
+    } catch (error) {
+      console.error("Error al enviar a n8n:", error);
+      alert("❌ No se pudo conectar con n8n");
+    }
   };
 
   return (
@@ -98,9 +130,18 @@ const Cheques = () => {
       
       {/* Formulario de carga */}
       <form onSubmit={handleAddItem} className="flex flex-col sm:flex-row gap-2 mb-6">
-        <input type="number" step="0.01" value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Ingresar valor del cheque"
-          className="flex-grow p-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-sky-500 focus:outline-none" />
-        <button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
+        <input 
+          type="number" 
+          step="0.01" 
+          value={inputValue} 
+          onChange={(e) => setInputValue(e.target.value)} 
+          placeholder="Ingresar valor del cheque"
+          className="flex-grow p-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-sky-500 focus:outline-none" 
+        />
+        <button 
+          type="submit" 
+          className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+        >
           Cargar Cheque
         </button>
       </form>
@@ -110,15 +151,18 @@ const Cheques = () => {
         {items.length > 0 ? items.map((item, index) => (
           <div key={`${index}-${item}`} className="flex justify-between items-center bg-slate-50 dark:bg-gray-700/50 p-3 rounded-lg animate-fade-in">
             {editingIndex === index ? (
-              // --- VISTA DE EDICIÓN ---
               <div className="flex-grow flex items-center gap-2">
-                <input type="number" value={editingValue} onChange={(e) => setEditingValue(e.target.value)} autoFocus
-                  className="w-full p-1 rounded bg-white dark:bg-gray-800 text-lg font-mono focus:ring-1 focus:ring-sky-500 focus:outline-none" />
+                <input 
+                  type="number" 
+                  value={editingValue} 
+                  onChange={(e) => setEditingValue(e.target.value)} 
+                  autoFocus
+                  className="w-full p-1 rounded bg-white dark:bg-gray-800 text-lg font-mono focus:ring-1 focus:ring-sky-500 focus:outline-none" 
+                />
                 <button onClick={() => handleSaveEdit(index)} className="text-green-500 hover:text-green-700 p-1"><Save size={20} /></button>
                 <button onClick={handleCancelEdit} className="text-gray-500 hover:text-gray-700 p-1"><XCircle size={20} /></button>
               </div>
             ) : (
-              // --- VISTA NORMAL ---
               <>
                 <span className="font-mono text-lg text-gray-800 dark:text-gray-200">{currencyFormatter.format(item)}</span>
                 <div className="flex items-center gap-2">
@@ -131,7 +175,23 @@ const Cheques = () => {
         )) : <p className="text-center text-gray-500 dark:text-gray-400 py-8">No hay cheques cargados.</p>}
       </div>
       
-      {items.length > 0 && <div className="mt-6 text-right"><button onClick={handleReset} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Limpiar Todo</button></div>}
+      {/* Botones de acciones */}
+      {items.length > 0 && (
+        <div className="mt-6 flex flex-col sm:flex-row justify-between gap-2">
+          <button 
+            onClick={handleReset} 
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm"
+          >
+            Limpiar Todo
+          </button>
+          <button 
+            onClick={handleSendToN8N} 
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm"
+          >
+            Enviar a n8n
+          </button>
+        </div>
+      )}
     </div>
   );
 };
