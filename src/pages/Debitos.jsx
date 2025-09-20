@@ -52,7 +52,7 @@ const Debitos = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:5678/webhook-test/debitos", {
+      const res = await fetch("http://localhost:5678/webhook-test/arqueoN8N", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
