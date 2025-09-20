@@ -82,7 +82,7 @@ const QR = () => {
     }
 
     try {
-      const response = await fetch('TU_WEBHOOK_URL_DE_N8N_AQUI', {  // Reemplaza con la URL de tu webhook en N8N
+      const response = await fetch('http://localhost:5678/webhook-test/arqueoN8N', {  
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
