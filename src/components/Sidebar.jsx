@@ -17,7 +17,7 @@ const Sidebar = ({ selectedItem, onSelectItem }) => {
   
   return (
     <aside className="w-64 bg-white dark:bg-gray-800 p-4 flex flex-col shadow-lg transition-colors duration-300">
-      <div className="text-2xl font-bold mb-8 text-center text-slate-700 dark:text-slate-300">Arqueo D</div>
+      <div className="text-2xl font-bold mb-8 text-center text-slate-700 dark:text-slate-300">Arqueo Digital</div>
       <nav className="flex-grow">
         <ul>
           {menuItems.map((item) => {
