@@ -6,24 +6,28 @@ import Content from '../components/Content';
 import Footer from '../components/Footer';
 
 const DashboardLayout = () => {
-  
+  // Estado para el tema (con localStorage)
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
-
+  
+  // Estado para el contenido a mostrar
   const [selectedItem, setSelectedItem] = useState('Inicio');
   
+  // Estado para el usuario seleccionado
   const [selectedUser, setSelectedUser] = useState('Felipe Gonzalez');
   
-  // --- NUEVOS CAMBIOS ---
-  // Estado para la ubicación, ahora con localStorage
+  // Estado para la ubicación (con localStorage)
   const [selectedLocation, setSelectedLocation] = useState(
     () => localStorage.getItem('selectedLocation') || 'Caja 1 - Casa Central'
   );
   
-  // Nuevo estado para el switch de valor fijo
-  const [isFixedValueActive, setIsFixedValueActive] = useState(false);
-  // --- FIN DE NUEVOS CAMBIOS ---
+  // --- NUEVO CAMBIO ---
+  // Estado para el switch de valor fijo, ahora con localStorage
+  const [isFixedValueActive, setIsFixedValueActive] = useState(
+    () => localStorage.getItem('isFixedValueActive') === 'true' // Lee como string y convierte a boolean
+  );
+  // --- FIN DE NUEVO CAMBIO ---
 
-  // Efecto para el tema (ya existente)
+  // Efecto para el tema
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove(theme === 'light' ? 'dark' : 'light');
@@ -31,11 +35,16 @@ const DashboardLayout = () => {
     localStorage.setItem('theme', theme);
   }, [theme]);
   
-  // --- NUEVO EFECTO ---
-  // Efecto para guardar la ubicación en localStorage
+  // Efecto para guardar la ubicación
   useEffect(() => {
     localStorage.setItem('selectedLocation', selectedLocation);
   }, [selectedLocation]);
+  
+  // --- NUEVO EFECTO ---
+  // Efecto para guardar el estado del switch en localStorage
+  useEffect(() => {
+    localStorage.setItem('isFixedValueActive', isFixedValueActive);
+  }, [isFixedValueActive]);
   // --- FIN DE NUEVO EFECTO ---
 
   const toggleTheme = () => {
@@ -56,8 +65,8 @@ const DashboardLayout = () => {
           setSelectedLocation={setSelectedLocation}
           toggleTheme={toggleTheme} 
           theme={theme}
-          isFixedValueActive={isFixedValueActive}      
-          setIsFixedValueActive={setIsFixedValueActive}  
+          isFixedValueActive={isFixedValueActive}
+          setIsFixedValueActive={setIsFixedValueActive}
         />
         <Content selectedItem={selectedItem} />
         <Footer />
