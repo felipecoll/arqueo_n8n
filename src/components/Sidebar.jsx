@@ -3,7 +3,7 @@ import { Home, ArrowRightLeft, QrCode, CreditCard, Landmark, Banknote, ArrowDown
 
 const Sidebar = ({ selectedItem, onSelectItem }) => {
   const menuItems = [
-    { name: "Inicio", icon: <Home size={20} /> },
+    { name: "Home", icon: <Home size={20} /> },
     { name: "Pagos Municipales", icon: <Landmark size={20} /> },
     { name: "Varios", icon: <Shapes size={20} /> },
     { name: "Egresos", icon: <ArrowDown size={20} /> },

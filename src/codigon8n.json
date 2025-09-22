@@ -1,0 +1,91 @@
+{
+  "name": "Centralizador React → Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "centralizador",
+        "options": {}
+      },
+      "id": "Webhook",
+      "name": "Webhook Centralizador",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "propertyName": "type",
+        "rules": [
+          { "operation": "equal", "value": "efectivo" },
+          { "operation": "equal", "value": "debitos" },
+          { "operation": "equal", "value": "cheques" },
+          { "operation": "equal", "value": "transferencias" },
+          { "operation": "equal", "value": "qr" },
+          { "operation": "equal", "value": "pagosmunicipales" },
+          { "operation": "equal", "value": "egresos" },
+          { "operation": "equal", "value": "varios" }
+        ]
+      },
+      "id": "Switch",
+      "name": "Switch Tipo",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "Tipo": "={{$json[\"type\"]}}",
+          "Detalle": "={{Object.entries($json[\"counts\"] || {}).map(([k,v]) => k+\"x\"+v).join(\", \") || $json[\"detalle\"] || \"-\"}}",
+          "Total": "={{$json[\"totalGeneral\"] || $json[\"total\"] || 0}}",
+          "FechaHora": "={{$json[\"timestamp\"] || $now}}"
+        }
+      },
+      "id": "Set",
+      "name": "Set Datos Normalizados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "TU_SHEET_ID",
+        "range": "Centralizador!A:D",
+        "options": {}
+      },
+      "id": "GoogleSheets",
+      "name": "Google Sheets - Append Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [800, 300],
+      "credentials": {
+        "googleSheetsOAuth2": "TU_CREDENCIAL_GOOGLE"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [{ "node": "Switch", "type": "main", "index": 0 }]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [{ "node": "Set", "type": "main", "index": 0 }],
+        [{ "node": "Set", "type": "main", "index": 0 }],
+        [{ "node": "Set", "type": "main", "index": 0 }],
+        [{ "node": "Set", "type": "main", "index": 0 }],
+        [{ "node": "Set", "type": "main", "index": 0 }],
+        [{ "node": "Set", "type": "main", "index": 0 }],
+        [{ "node": "Set", "type": "main", "index": 0 }],
+        [{ "node": "Set", "type": "main", "index": 0 }]
+      ]
+    },
+    "Set": {
+      "main": [
+        [{ "node": "GoogleSheets", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}
