@@ -10,4 +10,4 @@ Creacion de proyecto en react, mediante vite con tailwind.
 
 # Fase 2
 
-Vinculacion a N8N
+Vinculacion a N8N - Aqui mediante el envio de datos del formulario en react los datos son receptados en N8N para su proceso y posterior envio a un archivo de google sheets. 
