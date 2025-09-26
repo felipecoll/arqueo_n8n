@@ -12,7 +12,7 @@ const Header = ({
 
   const users = ["Coll, Leon Felipe"];
   const locations = [
-    "Caja 1 - Casa Central", "Caja 2 - Casa Central", "Caja 3 - Casa Central",
+    "Caja 1 - casa central", "Caja 2 - casa central", "Caja 3 - casa central",
     "Caja Sinsacate", "Caja La caroyense - 1", "Caja ruta 9 - 1",
     "Caja ruta 9 - 2", "Caja Locutorio XV"
   ];
