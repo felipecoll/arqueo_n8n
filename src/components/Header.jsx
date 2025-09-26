@@ -10,7 +10,7 @@ const Header = ({
   const [isSending, setIsSending] = useState(false); // controla envío
   const [isVerified, setIsVerified] = useState(false); // controla deshabilitado
 
-  const users = ["Coll, Leon Felipe", 'Tonellier, Jose', 'Lenarduzzi, Andres'];
+  const users = ["Coll, Leon Felipe"];
   const locations = [
     "Caja 1 - Casa Central", "Caja 2 - Casa Central", "Caja 3 - Casa Central",
     "Caja Sinsacate", "Caja La caroyense - 1", "Caja ruta 9 - 1",
