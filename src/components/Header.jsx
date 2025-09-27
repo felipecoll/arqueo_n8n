@@ -1,9 +1,9 @@
 
+// src/components/Header.jsx
 import { useState } from 'react';
-import { Sun, Moon, ChevronDown, CheckCircle, Menu } from 'lucide-react';
+import { Sun, Moon, ChevronDown, CheckCircle } from 'lucide-react';
 
 const Header = ({ 
-  toggleSidebar, // 🔹 2. Recibimos la nueva prop para el menú
   selectedUser, setSelectedUser, 
   selectedLocation, setSelectedLocation, 
   toggleTheme, theme,
@@ -20,47 +20,73 @@ const Header = ({
   ];
   const fixedValue = isFixedValueActive ? 10000 : 0;
   
-  const currencyFormatter = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 });
+  const currencyFormatter = new Intl.NumberFormat('es-AR', { 
+    style: 'currency', 
+    currency: 'ARS', 
+    minimumFractionDigits: 0 
+  });
 
   const handleVerification = async () => {
-    // ... tu lógica de envío a n8n no cambia ...
+    const payload = {
+      tipoForm: "header",
+      fecha: new Date().toISOString(),
+      usuario: selectedUser,
+      ubicacion: selectedLocation,
+      valorFijo: fixedValue
+    };
+
+    setIsSending(true);
+
+    try {
+      const res = await fetch("http://localhost:5678/webhook-test/arqueoN8N", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error("Error en la respuesta del servidor");
+
+      const data = await res.json();
+      console.log("Respuesta de n8n:", data);
+
+      alert(`
+        --- Datos Enviados ---
+        Usuario: ${payload.usuario}
+        Ubicación: ${payload.ubicacion}
+        Valor Fijo: ${currencyFormatter.format(payload.valorFijo)}
+      `);
+
+      setIsVerified(true);
+    } catch (error) {
+      console.error("Error al enviar datos a n8n:", error);
+      alert("❌ Error al enviar los datos a n8n");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm p-4 flex justify-between items-center transition-colors duration-300">
-      {/* Sección Izquierda MODIFICADA */}
-      <div className="flex items-center gap-2 sm:gap-4">
-        {/* 🔹 3. Añadimos el botón de menú aquí */}
-        <button 
-          onClick={toggleSidebar} 
-          className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-700"
-        >
-          <Menu size={24} />
-        </button>
-
-        {/* Tus selectores de usuario y ubicación */}
-        <div className="flex flex-col">
-          <div className="relative">
-            <select value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}
-              className="appearance-none bg-transparent dark:text-white font-bold text-lg cursor-pointer pr-6 focus:outline-none">
-              {users.map(user => <option key={user} value={user}>{user}</option>)}
-            </select>
-            <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none" />
-          </div>
-          <div className="relative">
-            <select value={selectedLocation} onChange={(e) => setSelectedLocation(e.target.value)}
-              className="appearance-none bg-transparent text-xs text-gray-500 dark:text-gray-400 cursor-pointer pr-6 focus:outline-none">
-              {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
-            </select>
-            <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none" />
-          </div>
+      {/* Sección Izquierda */}
+      <div className="flex flex-col">
+        <div className="relative">
+          <select value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}
+            className="appearance-none bg-transparent dark:text-white font-bold text-lg cursor-pointer pr-6 focus:outline-none">
+            {users.map(user => <option key={user} value={user}>{user}</option>)}
+          </select>
+          <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none" />
+        </div>
+        <div className="relative">
+          <select value={selectedLocation} onChange={(e) => setSelectedLocation(e.target.value)}
+            className="appearance-none bg-transparent text-xs text-gray-500 dark:text-gray-400 cursor-pointer pr-6 focus:outline-none">
+            {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+          </select>
+          <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 dark:text-gray-400 pointer-events-none" />
         </div>
       </div>
 
-      {/* El resto de tu código del Header permanece exactamente igual */}
       {/* Sección Central */}
       <div className="hidden lg:flex items-center gap-6">
-        {/* Switch de Valor Fijo */}
         <div className="flex items-center gap-3">
           <label className="flex items-center cursor-pointer">
             <div className="relative">
@@ -73,8 +99,6 @@ const Header = ({
             {currencyFormatter.format(fixedValue)}
           </span>
         </div>
-
-        {/* Botón de Verificación */}
         <button onClick={handleVerification} disabled={isVerified || isSending}
           className={`flex items-center gap-2 font-semibold py-2 px-4 rounded-lg transition-colors 
             ${isVerified ? 'bg-green-500 text-white cursor-not-allowed' : 

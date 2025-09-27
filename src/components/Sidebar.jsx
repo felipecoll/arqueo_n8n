@@ -1,7 +1,6 @@
 // src/components/Sidebar.jsx
 import { Home, ArrowRightLeft, QrCode, CreditCard, Landmark, Banknote, ArrowDown, ArrowUp, Shapes, PanelLeftClose, Menu } from 'lucide-react';
 
-// Recibe las 3 props necesarias: el estado, la función para cambiarlo, y el item activo
 const Sidebar = ({ isSidebarOpen, toggleSidebar, selectedItem, onSelectItem }) => { 
   const menuItems = [
     { name: "Home", icon: <Home size={20} /> },
@@ -21,13 +20,12 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, selectedItem, onSelectItem }) =
       ${isSidebarOpen ? 'w-64' : 'w-20'}`}
     >
       <div className="flex items-center justify-between mb-8">
-        {/* El título solo se muestra si el menú está abierto */}
         <h1 
-          className={`font-bold text-2xl text-slate-700 dark:text-slate-300 transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}
+          className={`font-bold text-2xl text-slate-700 dark:text-slate-300 transition-opacity duration-300 whitespace-nowrap
+          ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}
         >
           Arqueo Digit
         </h1>
-        {/* El botón para abrir/cerrar ahora vive aquí */}
         <button 
           onClick={toggleSidebar} 
           className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-700 dark:text-slate-300"
@@ -55,7 +53,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, selectedItem, onSelectItem }) =
                 >
                   {item.icon}
                   <span 
-                    className={`ml-4 font-medium whitespace-nowrap transition-all duration-200 
+                    className={`ml-4 font-medium whitespace-nowrap transition-opacity duration-200 
                     ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0 h-0 overflow-hidden'}`}
                   >
                     {item.name}
@@ -71,52 +69,3 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, selectedItem, onSelectItem }) =
 };
 
 export default Sidebar;
-// // src/components/Sidebar.jsx
-// import { Home, ArrowRightLeft, QrCode, CreditCard, Landmark, Banknote, ArrowDown, ArrowUp, Shapes } from 'lucide-react';
-
-// const Sidebar = ({ selectedItem, onSelectItem }) => {
-//   const menuItems = [
-//     { name: "Home", icon: <Home size={20} /> },
-//     { name: "Pagos Municipales", icon: <Landmark size={20} /> },
-//     { name: "Varios", icon: <Shapes size={20} /> },
-//     { name: "Egresos", icon: <ArrowDown size={20} /> },
-//     { name: "Cheques", icon: <Banknote size={20} /> },
-//     { name: "Transferencias", icon: <ArrowRightLeft size={20} /> },
-//     { name: "QR", icon: <QrCode size={20} /> },
-//     { name: "Débitos", icon: <CreditCard size={20} /> },
-    
-//     { name: "Efectivo", icon: <ArrowUp size={20} /> }, 
-//   ];
-  
-//   return (
-//     <aside className="w-64 bg-white dark:bg-gray-800 p-4 flex flex-col shadow-lg transition-colors duration-300">
-//       <div className="text-2xl font-bold mb-8 text-center text-slate-700 dark:text-slate-300">Arqueo Digit</div>
-//       <nav className="flex-grow">
-//         <ul>
-//           {menuItems.map((item) => {
-//             const isActive = selectedItem === item.name;
-//             return (
-//               <li key={item.name} className="mb-2">
-//                 <a
-//                   href="#"
-//                   onClick={() => onSelectItem(item.name)}
-//                   className={`flex items-center p-3 rounded-lg transition-all
-//                     ${isActive
-//                       ? 'bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300'
-//                       : 'text-gray-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700'
-//                     }`
-//                   }
-//                 >
-//                   {item.icon}
-//                   <span className="ml-4 font-medium">{item.name}</span>
-//                 </a>
-//               </li>
-//             );
-//           })}
-//         </ul>
-//       </nav>
-//     </aside>
-//   );
-// };
-
-// export default Sidebar;
