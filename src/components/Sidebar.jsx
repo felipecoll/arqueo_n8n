@@ -51,7 +51,12 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, selectedItem, onSelectItem }) =
                     }`
                   }
                 >
-                  {item.icon}
+                  {/* 🔹 CORRECCIÓN APLICADA AQUÍ 🔹 */}
+                  {/* Se envuelve el ícono en un div para evitar que se encoja */}
+                  <div className="flex-shrink-0">
+                    {item.icon}
+                  </div>
+                  
                   <span 
                     className={`ml-4 font-medium whitespace-nowrap transition-opacity duration-200 
                     ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0 h-0 overflow-hidden'}`}
