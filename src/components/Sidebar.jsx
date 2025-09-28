@@ -19,13 +19,18 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, selectedItem, onSelectItem }) =
       className={`bg-white dark:bg-gray-800 p-4 flex flex-col shadow-lg transition-all duration-300 ease-in-out
       ${isSidebarOpen ? 'w-64' : 'w-20'}`}
     >
-      <div className="flex items-center justify-between mb-8">
-        <h1 
-          className={`font-bold text-2xl text-slate-700 dark:text-slate-300 transition-opacity duration-300 whitespace-nowrap
-          ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}
-        >
-          Arqueo Digit
-        </h1>
+      {/* 🔹 CONTENEDOR DEL TÍTULO Y BOTÓN CORREGIDO 🔹 */}
+      <div 
+        className={`flex items-center mb-8 transition-all duration-300
+        ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}
+      >
+        {/* El título ahora se renderiza condicionalmente para no ocupar espacio al cerrarse */}
+        {isSidebarOpen && (
+          <h1 className="font-bold text-2xl text-slate-700 dark:text-slate-300 whitespace-nowrap">
+            Arqueo Digit
+          </h1>
+        )}
+        
         <button 
           onClick={toggleSidebar} 
           className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 text-slate-700 dark:text-slate-300"
@@ -51,8 +56,6 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, selectedItem, onSelectItem }) =
                     }`
                   }
                 >
-                  {/* 🔹 CORRECCIÓN APLICADA AQUÍ 🔹 */}
-                  {/* Se envuelve el ícono en un div para evitar que se encoja */}
                   <div className="flex-shrink-0">
                     {item.icon}
                   </div>
