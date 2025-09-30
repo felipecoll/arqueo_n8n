@@ -16,7 +16,7 @@ const Header = ({
   const locations = [
     "Caja 1 - casa central", "Caja 2 - casa central", "Caja 3 - casa central",
     "Caja Sinsacate", "Caja La caroyense - 1", "Caja ruta 9 - 1",
-    "Caja ruta 9 - 2", "Caja Locutorio XV"
+    "Caja ruta 9 - 2", "Caja locutorio XV"
   ];
   const fixedValue = isFixedValueActive ? 10000 : 0;
   

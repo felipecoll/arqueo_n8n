@@ -13,7 +13,7 @@ const PlaceholderContent = ({ sectionName }) => (
   <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
     <p className="text-gray-600 dark:text-gray-400">
       Seleccione una opcion del menu izquierdo para visualizar aqui su contenido.
-       <strong className="font-semibold text-sky-600 dark:text-sky-400">{sectionName}</strong> .- 
+       {/* <strong className="font-semibold text-sky-600 dark:text-sky-400">{sectionName}</strong> .-  */}
     </p> 
   </div>
 );
