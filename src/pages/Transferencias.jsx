@@ -1,7 +1,7 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { ArrowRightLeft, Trash2, Edit, Save, XCircle, ListPlus, CircleDollarSign } from 'lucide-react';
 
+// === Función inicial: cargar datos desde localStorage ===
 const getInitialData = () => {
   try {
     const savedData = localStorage.getItem('transferenciaTransactions');
@@ -31,12 +31,37 @@ const Transferencias = () => {
     return { totalAmount: total, operationCount: items.length };
   }, [items]);
 
-  const handleAddItem = (e) => {
+  // === AGREGAR ITEM Y ENVIAR A N8N ===
+  const handleAddItem = async (e) => {
     e.preventDefault();
     const newValue = parseFloat(inputValue);
     if (isNaN(newValue) || newValue <= 0) return;
+
     setItems([newValue, ...items]);
     setInputValue('');
+
+    // Enviar a n8n
+    try {
+      const res = await fetch("https://TU_N8N_URL/webhook/transferencias", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fecha: new Date().toISOString().split("T")[0], // yyyy-mm-dd
+          tipo: "Ingreso",
+          medio: "Transferencia",
+          monto: newValue,
+          observacion: "Carga manual en módulo transferencias"
+        })
+      });
+
+      if (res.ok) {
+        console.log("✅ Transferencia enviada a n8n");
+      } else {
+        console.error("❌ Error en envío a n8n");
+      }
+    } catch (error) {
+      console.error("⚠️ No se pudo conectar con n8n", error);
+    }
   };
 
   const handleDeleteItem = (indexToDelete) => {
@@ -49,7 +74,7 @@ const Transferencias = () => {
     }
   };
 
-  // --- Lógica de Edición ---
+  // === Lógica de edición ===
   const handleEditClick = (index) => {
     setEditingIndex(index);
     setEditingValue(items[index].toString());
@@ -60,7 +85,7 @@ const Transferencias = () => {
     setEditingValue('');
   };
 
-  const handleSaveEdit = (indexToSave) => {
+  const handleSaveEdit = async (indexToSave) => {
     const updatedValue = parseFloat(editingValue);
     if (isNaN(updatedValue) || updatedValue <= 0) {
         alert("Por favor, ingresa un valor válido.");
@@ -68,7 +93,30 @@ const Transferencias = () => {
     }
     const updatedItems = items.map((item, index) => index === indexToSave ? updatedValue : item);
     setItems(updatedItems);
-    handleCancelEdit(); // Resetea el estado de edición
+    handleCancelEdit();
+
+    // Enviar actualización a n8n
+    try {
+      const res = await fetch("https://TU_N8N_URL/webhook/transferencias_update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fecha: new Date().toISOString().split("T")[0],
+          tipo: "Ingreso",
+          medio: "Transferencia",
+          monto: updatedValue,
+          observacion: `Edición de valor en índice ${indexToSave}`
+        })
+      });
+
+      if (res.ok) {
+        console.log("✅ Edición enviada a n8n");
+      } else {
+        console.error("❌ Error al enviar edición a n8n");
+      }
+    } catch (error) {
+      console.error("⚠️ No se pudo conectar con n8n en edición", error);
+    }
   };
 
   return (
@@ -98,9 +146,18 @@ const Transferencias = () => {
       
       {/* Formulario de carga */}
       <form onSubmit={handleAddItem} className="flex flex-col sm:flex-row gap-2 mb-6">
-        <input type="number" step="0.01" value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Ingresar valor del vale/transf."
-          className="flex-grow p-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-sky-500 focus:outline-none" />
-        <button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
+        <input 
+          type="number" 
+          step="0.01" 
+          value={inputValue} 
+          onChange={(e) => setInputValue(e.target.value)} 
+          placeholder="Ingresar valor del vale/transf."
+          className="flex-grow p-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-sky-500 focus:outline-none" 
+        />
+        <button 
+          type="submit" 
+          className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+        >
           Cargar vale/transf.
         </button>
       </form>
@@ -112,8 +169,13 @@ const Transferencias = () => {
             {editingIndex === index ? (
               // --- VISTA DE EDICIÓN ---
               <div className="flex-grow flex items-center gap-2">
-                <input type="number" value={editingValue} onChange={(e) => setEditingValue(e.target.value)} autoFocus
-                  className="w-full p-1 rounded bg-white dark:bg-gray-800 text-lg font-mono focus:ring-1 focus:ring-sky-500 focus:outline-none" />
+                <input 
+                  type="number" 
+                  value={editingValue} 
+                  onChange={(e) => setEditingValue(e.target.value)} 
+                  autoFocus
+                  className="w-full p-1 rounded bg-white dark:bg-gray-800 text-lg font-mono focus:ring-1 focus:ring-sky-500 focus:outline-none" 
+                />
                 <button onClick={() => handleSaveEdit(index)} className="text-green-500 hover:text-green-700 p-1"><Save size={20} /></button>
                 <button onClick={handleCancelEdit} className="text-gray-500 hover:text-gray-700 p-1"><XCircle size={20} /></button>
               </div>
@@ -131,7 +193,16 @@ const Transferencias = () => {
         )) : <p className="text-center text-gray-500 dark:text-gray-400 py-8">No hay vales o transferencias cargadas.</p>}
       </div>
       
-      {items.length > 0 && <div className="mt-6 text-right"><button onClick={handleReset} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Limpiar Todo</button></div>}
+      {items.length > 0 && (
+        <div className="mt-6 text-right">
+          <button 
+            onClick={handleReset} 
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm"
+          >
+            Limpiar Todo
+          </button>
+        </div>
+      )}
     </div>
   );
 };
