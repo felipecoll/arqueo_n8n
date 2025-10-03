@@ -118,7 +118,7 @@ const Transferencias = () => {
         <div className="bg-slate-50 dark:bg-gray-700/50 p-4 rounded-lg flex items-center gap-4">
           <CircleDollarSign className="h-8 w-8 text-green-500" />
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Monto Total</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400"> Total</p>
             <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{currencyFormatter.format(totalAmount)}</p>
           </div>
         </div>
