@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ArrowDownCircle, Trash2, Edit, Save, XCircle, ListPlus, CircleDollarSign, Send } from 'lucide-react';
+import { ArrowDownCircle, Trash2, Edit, Save, XCircle, ListPlus, CircleDollarSign, UploadCloud } from 'lucide-react';
 import { sendToN8N } from '../utils/sendN8N'; // 
 
 const getInitialData = () => {
@@ -196,7 +196,7 @@ const Egresos = () => {
             onClick={handleSendToN8N}
             className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 text-sm"
           >
-            <Send size={16} />
+            <UploadCloud size={16} />
             Enviar a n8n
           </button>
         )}
