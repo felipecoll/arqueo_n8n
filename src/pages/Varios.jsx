@@ -1,7 +1,6 @@
 // src/components/Varios.jsx
 import { useState, useEffect, useMemo } from 'react';
-import { Shapes, Trash2, Edit, Save, XCircle, ListPlus, CircleDollarSign, Send } from 'lucide-react';
-
+import { Shapes, Trash2, Edit, Save, XCircle, ListPlus, CircleDollarSign, Send, UploadCloud } from 'lucide-react';
 const getInitialData = () => {
   try {
     const savedData = localStorage.getItem('variosTransactions');
@@ -177,7 +176,7 @@ const Varios = () => {
             onClick={handleSendToN8N} 
             className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm flex items-center gap-2"
           >
-            <Send size={18} /> Enviar a n8n
+            <UploadCloud size={18} /> Enviar a n8n
           </button>
         </div>
       )}
