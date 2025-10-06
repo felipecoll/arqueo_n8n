@@ -1,5 +1,5 @@
 
-// src/components/Header.jsx
+// Envio de datos (cabecera) a n8n para su creacion en google sheets
 import { useState } from 'react';
 import { Sun, Moon, ChevronDown, CheckCircle } from 'lucide-react';
 
