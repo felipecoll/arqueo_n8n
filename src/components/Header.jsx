@@ -12,7 +12,7 @@ const Header = ({
   const [isSending, setIsSending] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
 
-  const users = ["Coll, Leon Felipe"];
+  const users = ["Coll, Leon Felipe", 'Coll, Leon Felipe (test)'];
   const locations = [
     "Caja 1 - casa central", "Caja 2 - casa central", "Caja 3 - casa central",
     "Caja Sinsacate", "Caja La caroyense - 1", "Caja ruta 9 - 1",
