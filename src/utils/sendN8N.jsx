@@ -2,7 +2,7 @@
 
 export const sendToN8N = async (modulo, datos) => {
   try {
-    const response = await fetch("http://localhost/webhook/arqueoN8N", {
+    const response = await fetch("http://localhost:5678/webhook-test/arqueoN8N", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
