@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Landmark, Trash2, Edit, Save, XCircle, ListPlus, CircleDollarSign, UploadCloud, Send } from 'lucide-react';
-import { sendToN8N } from '../utils/sendN8N'; // Se mantiene la importación original
+// Se elimina la importación: import { sendToN8N } from '../utils/sendN8N'; 
 
 // Nueva interfaz de datos: { value: number, sent: boolean }
 
@@ -30,7 +30,7 @@ const PagosMunicipales = () => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingValue, setEditingValue] = useState('');
   
-  // Estado para feedback de envío (bulk), aunque sendToN8N podría manejarlo internamente
+  // Estado para feedback de envío (bulk)
   const [sendingBulk, setSendingBulk] = useState(false);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ const PagosMunicipales = () => {
     handleCancelEdit();
   };
 
-  // --- NUEVA: Envío de ítem individual a n8n ---
+  // --- NUEVA: Envío de ítem individual a n8n (FETCH DIRECTO) ---
   const handleSendIndividualToN8N = async (indexToSend) => {
     const item = items[indexToSend];
     if (item.sent) return;
@@ -101,30 +101,37 @@ const PagosMunicipales = () => {
     }
     
     try {
-        // Asumo que sendToN8N es asíncrona y devuelve un resultado de éxito
-        const success = await sendToN8N("pagos_municipales_individual", { // Usar un endpoint distinto o un flag
-            pago: item.value, // Envía solo el valor
-            operacion: "individual",
+        const response = await fetch("http://localhost:5678/webhook/pagos_municipales", {  
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                pago: item.value, // Envía solo el valor
+                operacion: "individual", // Flag para el webhook
+                timestamp: new Date().toISOString()
+            }),
         });
 
-        if (success) {
-            // Si el envío es exitoso, actualiza el estado 'sent' a true
-            const updatedItems = items.map((i, idx) => 
-                idx === indexToSend ? { ...i, sent: true } : i
-            );
-            setItems(updatedItems);
-            alert("✅ Pago individual enviado a n8n.");
-        } else {
-            alert("❌ Error al enviar el pago individual a n8n.");
+        if (!response.ok) {
+            throw new Error('Error al enviar el dato individual');
         }
+
+        // Si el envío es exitoso, actualiza el estado 'sent' a true
+        const updatedItems = items.map((i, idx) => 
+            idx === indexToSend ? { ...i, sent: true } : i
+        );
+        setItems(updatedItems);
+        alert("✅ Pago individual enviado a n8n.");
+        
     } catch (error) {
         console.error("Error en envío individual a n8n:", error);
-        alert("⚠️ Error de conexión o proceso al enviar el pago individual.");
+        alert("⚠️ No se pudo enviar el pago individual. Intenta nuevamente.");
     }
   };
 
 
-  // --- MODIFICADA: Envío de datos bulk a n8n ---
+  // --- MODIFICADA: Envío de datos bulk a n8n (FETCH DIRECTO) ---
   const handleSendToN8N = async () => {
     if (items.length === 0) {
       alert("No hay pagos municipales para enviar.");
@@ -141,24 +148,30 @@ const PagosMunicipales = () => {
         // Prepara la lista de valores para enviar al webhook
         const valuesToSend = items.map(item => item.value);
 
-        // Asumo que sendToN8N es asíncrona y devuelve un resultado de éxito
-        const success = await sendToN8N("pagos_municipales", {
-            pagos: valuesToSend,
-            totalAmount,
-            operationCount,
+        const response = await fetch("http://localhost:5678/webhook/pagos_municipales", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                pagos: valuesToSend, // Envía solo los valores
+                totalAmount,
+                operationCount,
+                operacion: "bulk", // Flag para el webhook
+                timestamp: new Date().toISOString()
+            }),
         });
 
-        if (success) {
-            // Si el envío bulk es exitoso, marca TODOS los ítems como enviados
-            const markedAsSent = items.map(item => ({ ...item, sent: true }));
-            setItems(markedAsSent);
-            alert("✅ Datos enviados a n8n correctamente");
-        } else {
-            alert("❌ Error al enviar datos a n8n");
+        if (!response.ok) {
+            throw new Error('Error al enviar datos a n8n');
         }
+
+        // Si el envío bulk es exitoso, marca TODOS los ítems como enviados
+        const markedAsSent = items.map(item => ({ ...item, sent: true }));
+        setItems(markedAsSent);
+        alert("✅ Datos enviados a n8n correctamente");
+        
     } catch (error) {
         console.error("Error en envío bulk a n8n:", error);
-        alert("⚠️ No se pudo completar la operación de envío bulk.");
+        alert("⚠️ No se pudo conectar con n8n.");
     } finally {
         setSendingBulk(false);
     }
@@ -305,7 +318,6 @@ const PagosMunicipales = () => {
 };
 
 export default PagosMunicipales;
-
 
 // import { useState, useEffect, useMemo } from 'react';
 // import { Landmark, Trash2, Edit, Save, XCircle, ListPlus, CircleDollarSign, UploadCloud } from 'lucide-react';
