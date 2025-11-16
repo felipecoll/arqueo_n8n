@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import { QrCode, Trash2, Edit, Save, XCircle, ListPlus, CircleDollarSign, Send } from 'lucide-react'; // Importé 'Send' para el botón individual
+import { QrCode, Trash2, Edit, Save, XCircle, ListPlus, CircleDollarSign, Send, UploadCloud } from 'lucide-react'; 
 
-// Nueva interfaz de datos: { value: number, sent: boolean }
+// --- Estructura de Datos Mejorada ---
+// { value: number, sent: boolean, isSending: boolean }
 
 const getInitialData = () => {
   try {
@@ -10,13 +11,13 @@ const getInitialData = () => {
 
     const parsedData = JSON.parse(savedData);
     
-    // Convierte el formato antiguo (array de números) al nuevo (array de objetos) si es necesario.
     return parsedData.map(item => {
-      if (typeof item === 'number') {
-        return { value: item, sent: false }; // Nuevo ítem sin enviar
-      }
-      // Si ya es un objeto, lo usa, asegurando que 'sent' esté definido.
-      return { value: item.value, sent: item.sent || false };
+      // Manejar la conversión de viejos formatos (solo números) y asegurar flags
+      const value = typeof item === 'number' ? item : item.value;
+      const sent = item.sent || false;
+      
+      // Siempre inicializar isSending en false al cargar
+      return { value: value, sent: sent, isSending: false }; 
     });
   } catch (error) {
     console.error("Error parsing Qr transactions from localStorage", error);
@@ -27,20 +28,19 @@ const getInitialData = () => {
 const QR = () => {
   const [items, setItems] = useState(getInitialData);
   const [inputValue, setInputValue] = useState('');
-  
-  // Estados para la edición
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingValue, setEditingValue] = useState('');
+  const [sendingBulk, setSendingBulk] = useState(false); // Estado para el envío masivo
 
   useEffect(() => {
-    // Al guardar en LocalStorage, ahora se guarda el array de objetos
+    // Guarda la nueva estructura de objetos en LocalStorage
     localStorage.setItem('qrTransactions', JSON.stringify(items));
   }, [items]);
 
   const currencyFormatter = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
 
   const { totalAmount, operationCount } = useMemo(() => {
-    // El cálculo ahora accede a la propiedad 'value' de cada objeto
+    // Accede a item.value para el cálculo
     const total = items.reduce((sum, current) => sum + current.value, 0);
     return { totalAmount: total, operationCount: items.length };
   }, [items]);
@@ -50,8 +50,8 @@ const QR = () => {
     const newValue = parseFloat(inputValue);
     if (isNaN(newValue) || newValue <= 0) return;
     
-    // Crea el nuevo objeto con sent: false
-    setItems([{ value: newValue, sent: false }, ...items]);
+    // Nuevo ítem con sent: false y isSending: false
+    setItems([{ value: newValue, sent: false, isSending: false }, ...items]);
     setInputValue('');
   };
 
@@ -68,7 +68,6 @@ const QR = () => {
   // --- Lógica de Edición ---
   const handleEditClick = (index) => {
     setEditingIndex(index);
-    // Guarda el valor numérico (item.value) como string para la edición
     setEditingValue(items[index].value.toString());
   };
 
@@ -86,33 +85,37 @@ const QR = () => {
     
     const updatedItems = items.map((item, index) => {
       if (index === indexToSave) {
-        // Al modificar, se resetea el estado 'sent' a false para permitir el reenvío
-        return { value: updatedValue, sent: false };
+        // Al modificar, se resetea 'sent' y 'isSending' a false
+        return { ...item, value: updatedValue, sent: false, isSending: false };
       }
       return item;
     });
     setItems(updatedItems);
-    handleCancelEdit(); // Resetea el estado de edición
+    handleCancelEdit(); 
   };
   
-  // --- Función para enviar un ítem individual a N8N ---
+  // 🔄 MODIFICADA: Envío Individual con manejo de 'isSending'
   const handleSendIndividualToN8N = async (indexToSend) => {
     const item = items[indexToSend];
-    if (item.sent) return; // Previene el envío si ya fue marcado como enviado
+    // Previene si ya fue enviado O si ya está en proceso de envío
+    if (item.sent || item.isSending) return; 
 
     if (!window.confirm(`¿Seguro que quieres enviar el monto ${currencyFormatter.format(item.value)} individualmente a N8N?`)) {
       return;
     }
 
+    // 1. Marcar el ítem como isSending: true
+    setItems(items.map((i, idx) => 
+      idx === indexToSend ? { ...i, isSending: true } : i
+    ));
+
     try {
       const response = await fetch('http://localhost:5678/webhook-test/arqueoN8N', {  
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          value: item.value, // Envía solo el valor
-          source: 'qr', // CLAVE AÑADIDA PARA DIFERENCIAR EN N8N
+          value: item.value, 
+          source: 'qr', // Tipo de dato para N8N
         }),
       });
 
@@ -120,21 +123,25 @@ const QR = () => {
         throw new Error('Error al enviar el dato individual');
       }
 
-      // Si el envío es exitoso, actualiza el estado 'sent' a true para ESTE ítem
-      const updatedItems = items.map((i, idx) => 
-        idx === indexToSend ? { ...i, sent: true } : i
-      );
-      setItems(updatedItems);
+      // 2. Si es exitoso: Marcar como sent: true y isSending: false
+      setItems(items.map((i, idx) => 
+        idx === indexToSend ? { ...i, sent: true, isSending: false } : i
+      ));
 
       alert("Monto enviado exitosamente a N8N.");
     } catch (error) {
       console.error("Error enviando a N8N:", error);
-      alert("Hubo un error al enviar el dato. Intenta nuevamente.");
+      alert(`Hubo un error al enviar el dato (${error.message || 'Failed to fetch'}). Intenta nuevamente.`);
+      
+      // 3. Si falla: Marcar isSending: false, manteniendo sent: false
+      setItems(items.map((i, idx) => 
+        idx === indexToSend ? { ...i, isSending: false } : i
+      ));
     }
   };
 
 
-  // --- Función original para enviar todos (modificada para actualizar el estado) ---
+  // 🔄 Envío Masivo con manejo de 'sendingBulk' y 'source: qr'
   const handleSendToN8N = async () => {
     if (items.length === 0) {
       alert("No hay valores para enviar.");
@@ -144,21 +151,20 @@ const QR = () => {
     if (!window.confirm("¿Estás seguro de que deseas enviar la lista completa a N8N?")) {
       return;
     }
+    
+    setSendingBulk(true);
 
     try {
-      // Prepara la lista de valores para enviar al webhook
       const valuesToSend = items.map(item => item.value);
 
       const response = await fetch('http://localhost:5678/webhook-test/arqueoN8N', {  
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: valuesToSend,
           totalAmount,
           operationCount,
-          source: 'qr', // CLAVE AÑADIDA PARA DIFERENCIAR EN N8N (Bulk)
+          source: 'qr', // Tipo de dato para N8N (Bulk)
         }),
       });
 
@@ -166,14 +172,16 @@ const QR = () => {
         throw new Error('Error al enviar los datos');
       }
 
-      // Si el envío masivo es exitoso, marca TODOS los ítems como enviados
-      const markedAsSent = items.map(item => ({ ...item, sent: true }));
+      // Éxito: Marca TODOS los ítems como enviados y termina la carga
+      const markedAsSent = items.map(item => ({ ...item, sent: true, isSending: false }));
       setItems(markedAsSent);
 
       alert("Datos enviados exitosamente a N8N.");
     } catch (error) {
       console.error("Error enviando a N8N:", error);
-      alert("Hubo un error al enviar los datos. Intenta nuevamente.");
+      alert(`Hubo un error al enviar los datos (${error.message || 'Failed to fetch'}). Verifica la conexión a N8N.`);
+    } finally {
+        setSendingBulk(false);
     }
   };
 
@@ -215,7 +223,10 @@ const QR = () => {
       <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
         {items.length > 0 ? items.map((item, index) => (
           <div key={index} 
-               className={`flex justify-between items-center p-3 rounded-lg animate-fade-in transition-colors ${item.sent ? 'bg-green-50 dark:bg-gray-700/80 border-l-4 border-green-500' : 'bg-slate-50 dark:bg-gray-700/50'}`}>
+               className={`flex justify-between items-center p-3 rounded-lg animate-fade-in transition-colors 
+               ${item.sent ? 'bg-green-50 dark:bg-gray-700/80 border-l-4 border-green-500' : 
+                 item.isSending ? 'bg-yellow-50 dark:bg-yellow-800/50 border-l-4 border-yellow-500 animate-pulse' : 
+                 'bg-slate-50 dark:bg-gray-700/50'}`}>
             {editingIndex === index ? (
               // --- VISTA DE EDICIÓN ---
               <div className="flex-grow flex items-center gap-2">
@@ -233,10 +244,10 @@ const QR = () => {
                 <div className="flex items-center gap-2">
                   {/* BOTÓN DE ENVÍO INDIVIDUAL */}
                   <button onClick={() => handleSendIndividualToN8N(index)} 
-                          disabled={item.sent}
-                          className={`p-1 transition-opacity ${item.sent ? 'text-gray-400 opacity-60 cursor-not-allowed' : 'text-green-500 hover:text-green-700'}`}
-                          title={item.sent ? 'QR enviado' : 'Enviar este QR individualmente'}>
-                      <Send size={18} />
+                          disabled={item.sent || item.isSending}
+                          className={`p-1 transition-opacity ${item.sent || item.isSending ? 'text-gray-400 opacity-60 cursor-not-allowed' : 'text-green-500 hover:text-green-700'}`}
+                          title={item.sent ? 'QR enviado' : item.isSending ? 'Enviando...' : 'Enviar este QR individualmente'}>
+                      {item.isSending ? '...' : <Send size={18} />}
                   </button>
                   {/* BOTÓN DE EDICIÓN (Permite editar y re-enviar) */}
                   <button onClick={() => handleEditClick(index)} className="text-blue-500 hover:text-blue-700 p-1" title="Editar"><Edit size={18} /></button>
@@ -252,7 +263,15 @@ const QR = () => {
       {items.length > 0 && (
         <div className="mt-6 flex justify-end gap-4">
           <button onClick={handleReset} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Limpiar Todo</button>
-          <button onClick={handleSendToN8N} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Enviar Valores (Bulk)</button>
+          
+          <button 
+            onClick={handleSendToN8N} 
+            disabled={sendingBulk}
+            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm flex items-center gap-2 disabled:opacity-50"
+          >
+            <UploadCloud size={16} />
+            {sendingBulk ? "Enviando..." : "Enviar Valores (Bulk)"}
+          </button>
         </div>
       )}
     </div>
