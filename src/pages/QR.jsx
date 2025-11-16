@@ -95,7 +95,7 @@ const QR = () => {
     handleCancelEdit(); // Resetea el estado de edición
   };
   
-  // --- Nueva función para enviar un ítem individual a N8N ---
+  // --- Función para enviar un ítem individual a N8N ---
   const handleSendIndividualToN8N = async (indexToSend) => {
     const item = items[indexToSend];
     if (item.sent) return; // Previene el envío si ya fue marcado como enviado
@@ -112,6 +112,7 @@ const QR = () => {
         },
         body: JSON.stringify({
           value: item.value, // Envía solo el valor
+          source: 'qr', // CLAVE AÑADIDA PARA DIFERENCIAR EN N8N
         }),
       });
 
@@ -157,6 +158,7 @@ const QR = () => {
           items: valuesToSend,
           totalAmount,
           operationCount,
+          source: 'qr', // CLAVE AÑADIDA PARA DIFERENCIAR EN N8N (Bulk)
         }),
       });
 
@@ -250,7 +252,7 @@ const QR = () => {
       {items.length > 0 && (
         <div className="mt-6 flex justify-end gap-4">
           <button onClick={handleReset} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Limpiar Todo</button>
-          {/* <button onClick={handleSendToN8N} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Enviar Valores (Bulk)</button> */}
+          <button onClick={handleSendToN8N} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Enviar Valores (Bulk)</button>
         </div>
       )}
     </div>
