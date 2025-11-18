@@ -291,14 +291,14 @@ const Transferencias = () => {
           <button onClick={handleReset} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">
             Limpiar Todo
           </button>
-          <button 
+          {/* <button 
             onClick={handleSendToN8N} 
             disabled={sending}
             className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm flex items-center gap-2 disabled:opacity-50"
           >
             <UploadCloud size={18} />
             {sending ? "Enviando..." : "Enviar a n8n (Bulk)"}
-          </button>
+          </button> */}
         </div>
       )}
     </div>
