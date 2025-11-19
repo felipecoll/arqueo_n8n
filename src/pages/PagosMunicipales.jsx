@@ -302,7 +302,7 @@ const PagosMunicipales = () => {
           </button>
         )}
 
-        {items.length > 0 && (
+        {/* {items.length > 0 && (
           <button
             onClick={handleSendToN8N}
             disabled={sendingBulk}
@@ -311,7 +311,7 @@ const PagosMunicipales = () => {
             <UploadCloud size={16} />
             {sendingBulk ? "Enviando..." : "Enviar a n8n (Bulk)"}
           </button>
-        )}
+        )} */}
       </div>
     </div>
   );
